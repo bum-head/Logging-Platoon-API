@@ -21,7 +21,7 @@ def get_all_posts():
     return jsonify(postlist), 200
 
 @app.get("/posts/<int:post_id>") 
-def get_post():
+def get_specific_post(post_id):
     postlist = Database.get_post(post_id)
     return jsonify(postlist), 200
 

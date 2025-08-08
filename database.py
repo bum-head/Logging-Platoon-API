@@ -48,8 +48,29 @@ class Database:
             
             self.db_cursor.execute("DESCRIBE POSTS")
             data_headers = [desc[0] for desc in self.db_cursor.fetchall()]
+            data_headers.append("tags")
 
-            return [dict(zip(data_headers,i)) for i in range(len(data_columns))]
+            self.db_cursor.execute(f"SELECT id FROM POSTS")
+            post_id = [id[0] for id in self.db_cursor.fetchall()]
+           
+            full_list = []  ##the whole list of tags
+            for ids in post_id:
+                self.db_cursor.execute(f"SELECT * FROM post_tags WHERE post_id = {ids}") ##getting ids of tags from post_tags 
+                tag_id_list = [tag_id[1] for tag_id in self.db_cursor.fetchall()]        ##which is then used to find tag names
+                
+                tags_list = []
+
+                for tag_ids in tag_id_list:
+                    self.db_cursor.execute(f"SELECT * FROM TAGS WHERE id = {tag_ids}")
+                    tag = self.db_cursor.fetchall()[0][0]
+                    tags_list.append(tag)
+
+                full_list.append(tags_list)
+
+            for posts in range(len(full_list)):
+                data_columns[posts] = data_columns[posts] + tuple([full_list[posts]])
+
+            return [dict(zip(data_headers,i)) for i in data_columns]
         else:
             return False
 
@@ -60,19 +81,19 @@ class Database:
             
             self.db_cursor.execute("DESCRIBE POSTS")
             data_headers = [desc[0] for desc in self.db_cursor.fetchall()]
-            data_headers = data_headers.append("tags")
+            data_headers.append("tags")
             
-            self.db_cursor.execute(f"SELECT * FROM post_tag WHERE post_id={post_id}")
+            self.db_cursor.execute(f"SELECT * FROM post_tags WHERE post_id={post_id}")
             data_tag_id = [tag_id[1] for tag_id in self.db_cursor.fetchall()]
             
             tag_list = []
-            for tag in range(len(data_tag_id)):
+            for tag in data_tag_id:
                 self.db_cursor.execute(f"SELECT * FROM TAGS WHERE id={tag}")
-                tag_list = tag_list.append(name[1] for name in self.db_cursor.fetchall())
+                tag_list.append([name[1] for name in self.db_cursor.fetchall()])
 
-            data_columns[0] = data_columns[0] + tuple([tag_list])
+            data_columns[0] = data_columns[0] + tuple(tag_list)
 
-            return [dict(zip(data_headers,i)) for i in range(len(data_columns))]
+            return [dict(zip(data_headers,i)) for i in data_columns]
         else:
             return False
 
@@ -85,7 +106,7 @@ class Database:
             self.db_cursor.execute("DESCRIBE POSTS")
             data_headers = [desc[0] for desc in self.db_cursor.fetchall()]
 
-            return [dict(zip(data_headers,i)) for i in range(len(data_columns))]
+            return [dict(zip(data_headers,i)) for i in data_columns]
         else:
             return False
 
