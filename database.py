@@ -30,12 +30,12 @@ class Database:
 
     def add_post(self, values):
         if self.db_conn != None:
-            self.db_cursor.execute(f"INSERT INTO POSTS VALUES{values}")
+            self.db_cursor.execute(f"INSERT INTO POSTS (title, content, category) VALUES{values}")
             self.db_conn.commit()
             data = self.db_cursor.fetchall()
             
             if data == []: 
-                return True 
+                return []
         else:
             return False
 
@@ -134,12 +134,12 @@ class Database:
          if self.db_conn != None:
             self.db_cursor.execute(f"SELECT * FROM POSTS WHERE id={post_id}")
             data_columns = self.db_cursor.fetchall()
-            if len(data_columns) == 0:  ##checks if the post exists or not
-                return 2                ##returns 2 as a err handling thingy
+            if data_columns == []:  ##checks if the post exists or not
+                return 0  ##returns 2 as a err handling thingy
             else:
                 self.db_cursor.execute(f"DELETE FROM POSTS WHERE id={post_id}")
                 self.db_conn.commit()   #commits the deletion
-
+                return 1
          else:
             return False
 
