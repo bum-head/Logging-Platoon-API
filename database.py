@@ -111,23 +111,32 @@ class Database:
             return False
 
 
-    def update_post(self, post_id, changing_field, updated_field):
-        if type(updated_field) == str:
-            cmd = f"UPDATE POSTS SET {changing_field} = '{updated_field}' WHERE id={post_id}"
-        else: 
-            cmd = f"UPDATE POSTS SET {changing_field} = {updated_field} WHERE id={post_id}"
+    def update_post(self, post_id, changed_data, no_of_fields):
+        if no_of_fields == 3:
+            cmd = f"UPDATE POSTS SET title='{changed_data["title"]}' , content='{changed_data["content"]}' , category='{changed_data["category"]}' WHERE id={post_id}"
+        if no_of_fields == 2:
+            if changed_data['title'] == None:
+                cmd =  f"UPDATE POSTS SET  content='{changed_data["content"]}' , category='{changed_data["category"]}' WHERE id={post_id}"
+            elif changed_data['content'] == None:
+                cmd =  f"UPDATE POSTS SET  title='{changed_data["title"]}' , category='{changed_data["category"]}' WHERE id={post_id}"
+            elif changed_data['category'] == None:
+                cmd = f"UPDATE POSTS SET  title='{changed_data["title"]}' , content='{changed_data["content"]}' WHERE id={post_id}"
+        if no_of_fields == 1:
+            if changed_data["title"] != None:
+                cmd =  f"UPDATE POSTS SET  title='{changed_data["title"]}' WHERE id={post_id}"
+            elif changed_data["content"] != None:
+                cmd = f"UPDATE POSTS SET  content='{changed_data["content"]}' WHERE id={post_id}"
+            elif changed_data["category"] != None:
+                cmd = f"UPDATE POSTS SET  category='{changed_data["category"]}' WHERE id={post_id}"
+
         if self.db_conn != None:
             self.db_cursor.execute(cmd)
             self.db_conn.commit()
             data_columns = self.db_cursor.fetchall()
-            if len(data_columns) == 0:  ##checks if the post exists or not
-                return 2                ##returns 2 as a err handling thingy
+            if data_columns == []:
+                return True 
             else:
-                self.db_cursor.execute(f"DELETE FROM POSTS WHERE id={post_id}")
-                self.db_conn.commit()   #commits the deletion
-
-        else:
-            return False
+                return False
 
 
     def delete_post(self, post_id):

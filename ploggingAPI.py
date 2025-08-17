@@ -28,11 +28,29 @@ def get_specific_post(post_id):
 def get_post_filter(word):
     word =  request.args.get('term')
     #search the database with the `word` and display result
-    return 
+    postlist = Database.get_keyword_post(word)
 
-@app.put("/posts/<int:post_id>")
+    
+    return  jsonify(postlist), 200
+
+@app.patch("/posts/<int:post_id>")
 def update_post(post_id):
-    pass
+    data = json.loads(request.data)
+
+    if len(data) == 1:
+        result = Database.update_post(post_id, data, 1) 
+    elif len(data) == 2:
+        result = Database.update_post(post_id, data, 2)
+    elif len(data) == 3:
+        result = Database.update_post(post_id, data, 3)
+
+    if result == True:
+        return jsonify({"Message":"Resource was succesfully changed"}), 201
+    else: 
+        return jsonify({"Message":"No Resource was found or somthing else"}), 500
+
+
+
 
 @app.delete("/posts/<int:post_id>")
 def delete_post(post_id):
